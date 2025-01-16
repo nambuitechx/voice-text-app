@@ -44,7 +44,7 @@ async def upload(
     Upload voice audio.
     Start a background service to handle uploading action.
     """
-    # logger.info(f"===== blob =====: {blob}")
+    # logger.info(f"===== blob =====: {voice}")
     # logger.info(f"===== blob file name =====: {blob.filename}")
     # logger.info(f"===== blob bytes data =====: {blob.file.read()}")
     voice_bytes = voice.file.read()
