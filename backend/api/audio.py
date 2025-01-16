@@ -12,12 +12,12 @@ router = APIRouter(prefix="/audio")
 logger = get_logger(__name__)
 
 
-@router.get("/health-check")
-async def health_check():
+@router.get("/health", response_model=DefaultResponsePayload, tags=["audio"])
+async def health():
     """
     Health check endpoint to monitor API availability.
     """
-    return {"status": "success"}
+    return { "message": "healthy" }
 
 
 @router.post("/speak", response_model=DefaultResponsePayload, tags=["audio"])
@@ -28,6 +28,9 @@ async def upload(
     Upload voice audio.
     Start a background service to handle uploading action.
     """
-    logger.info(blob)
-    
+    # logger.info(f"===== blob =====: {blob}")
+    # logger.info(f"===== blob file name =====: {blob.filename}")
+    # logger.info(f"===== blob bytes data =====: {blob.file.read()}")
+    blob_bytes = blob.file.read()
+    logger.info(blob_bytes)
     return { "message": "Upload voice audio successsfully" }
