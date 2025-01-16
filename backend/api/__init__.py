@@ -1,6 +1,6 @@
-from .audio import router as audio_router
+from .message import router as message_router
 
 
 ALL_ROUTERS = [
-    audio_router,
+    message_router,
 ]

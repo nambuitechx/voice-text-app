@@ -19,11 +19,11 @@ function App() {
   );
 }
 
-const recordingCompleteHandler = async (blob: any) => {
-  console.log("Blob: ");
-  console.log(blob);
+const recordingCompleteHandler = async (voice: any) => {
+  console.log("Voice: ");
+  console.log(voice);
 
-  // const url = URL.createObjectURL(blob);
+  // const url = URL.createObjectURL(voice);
   // const audio = document.createElement("audio");
   // audio.src = url;
   // audio.controls = true;
@@ -31,9 +31,9 @@ const recordingCompleteHandler = async (blob: any) => {
 
   try {
     const formData = new FormData();
-    formData.append("blob", blob, "blob.webm");
+    formData.append("voice", voice, "voice.webm");
 
-    const response = await axios.post("http://localhost:8000/api/v1/audio/speak", formData);
+    const response = await axios.post("http://localhost:8000/api/v1/messages/audio", formData);
     console.log(response);
   } catch(err) {
     console.error(err);
