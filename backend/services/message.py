@@ -11,12 +11,24 @@ logger = get_logger(__name__)
 async def get_all_messages(limit: int, offset: int) -> list[Message]:
     try:
         async with AsyncSessionLocal() as session:
-            statement = select(Message).limit(limit=limit).offset(offset=offset).order_by(Message.updated_at.desc())
+            statement = select(Message).limit(limit=limit).offset(offset=offset).order_by(Message.updated_at.asc())
             result = await session.execute(statement=statement)
             messages = result.scalars().all()
             return messages
     except Exception as e:
         logger.error(f"Failed to get all messages: {str(e)}")
+        raise e
+
+
+async def get_message_by_ids(ids: list[str]) -> Message:
+    try:
+        async with AsyncSessionLocal() as session:
+            statement = select(Message).where(Message.id.in_(ids)).order_by(Message.updated_at.desc())
+            result = await session.execute(statement=statement)
+            messages = result.scalars().all()
+            return messages
+    except Exception as e:
+        logger.error(f"Failed to get messages by ids: {str(e)}")
         raise e
 
 

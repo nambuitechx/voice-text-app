@@ -10,9 +10,9 @@ class Message(BaseModel):
     voice: Mapped[bytes] = mapped_column(LargeBinary(), nullable=False)
     
     def __repr__(self):
-        return f"Message(id={self.id!r})"
+        return f"Message(id={self.id!r}, voice={self.voice!r})"
     
     def as_dict(self):
         return {
-            "id": self.id,
+            "id": self.id
         }
