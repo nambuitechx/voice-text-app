@@ -17,10 +17,13 @@ function App() {
 
     try {
       const formData = new FormData();
-      formData.append("voice", blob, "voice.wav");
+      formData.append("file", blob, "file.wav");
 
       const response = await axios.post("http://localhost:8000/api/v1/messages/audio", formData);
       console.log(response);
+      const text = document.createElement("p");
+      text.append("Bạn vừa nói: " + response?.data?.data)
+      document.body.appendChild(text);
     } catch(err) {
       console.error(err);
     }
@@ -30,10 +33,9 @@ function App() {
     <div className="container">
       <div>Hello world</div>
       <div>
-        <p>Status: {status}</p>
+        <h2>Status: {status}</h2>
         <button onClick={startRecording}>Start Recording</button>
         <button onClick={stopRecording}>Stop Recording</button>
-        <div><audio src={mediaBlobUrl} controls /></div>
     </div>
     </div>
   );
