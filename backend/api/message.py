@@ -4,6 +4,7 @@ import torch
 from tempfile import NamedTemporaryFile
 from typing import Annotated
 from fastapi import APIRouter, Query, HTTPException, Depends, UploadFile, File
+from transformers import pipeline
 
 from configs import get_logger
 from entities.models import Message
@@ -18,9 +19,9 @@ from services import (
 )
 
 
-torch.cuda.is_available()
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-model = whisper.load_model("base", device=DEVICE)
+# torch.cuda.is_available()
+# DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+# model = whisper.load_model("base", device=DEVICE)
 
 
 router = APIRouter(prefix="/messages")
@@ -64,7 +65,13 @@ async def upload(
         with open(temp.name, "wb") as temp_file:
             temp_file.write(file.file.read())
         
-        result = model.transcribe(temp.name, fp16=False)
+        ## Use normal whisper
+        # result = model.transcribe(temp.name, fp16=False)
+        # output = result.get("text", "")
+        
+        ## Use PhoWhisper
+        transcriber = pipeline("automatic-speech-recognition", model="vinai/PhoWhisper-medium")
+        result = transcriber(temp.name)
         output = result.get("text", "")
     
     return { "data": output, "message": "Upload voice audio successsfully" }
