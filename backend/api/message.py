@@ -44,23 +44,7 @@ async def get_all(filter_query: Annotated[GetMessagesQuery, Query()]):
     Get all messages.
     """
     exists = await get_all_messages(**filter_query.model_dump())
-    data = []
-    
-    ## Not a good idea to store only voice in database. should transcribed text as well.
-    for message in exists:
-        with NamedTemporaryFile(suffix=".wav") as temp:
-            with open(temp.name, "wb") as temp_file:
-                temp_file.write(message.voice)
-            
-            ## Use normal whisper
-            # result = model.transcribe(temp.name, fp16=False)
-            # output = result.get("text", "")
-            
-            ## Use PhoWhisper
-            transcriber = pipeline("automatic-speech-recognition", model="vinai/PhoWhisper-small")
-            result = transcriber(temp.name)
-            output = result.get("text", "")
-            data.append({ "id": message.id, "message": output })
+    data = [message.as_dict() for message in exists]
     
     return { "data": data, "message": "Get all messages successfully" }
 
@@ -77,8 +61,6 @@ async def upload(
     # logger.info(f"===== file name =====: {file.filename}")
     # logger.info(f"===== file bytes data =====: {file.file.read()}")
     file_bytes = file.file.read()
-    message = Message(voice=file_bytes)
-    message = await create_message(message=message)
     
     with NamedTemporaryFile(suffix=".wav") as temp:
         with open(temp.name, "wb") as temp_file:
@@ -93,7 +75,10 @@ async def upload(
         result = transcriber(temp.name)
         output = result.get("text", "")
     
-    return { "data": output, "message": "Upload voice audio successsfully" }
+    message = Message(voice=file_bytes, query=output)
+    message = await create_message(message=message)
+    
+    return { "data": message.as_dict(), "message": "Upload voice audio successsfully" }
 
 
 @router.delete("/message/{message_id}", response_model=DefaultResponsePayload, tags=["message"])

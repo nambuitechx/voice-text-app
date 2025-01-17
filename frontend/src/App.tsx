@@ -39,7 +39,7 @@ function App() {
 
       const response = await axios.post(`${BASE_URL}/messages/audio`, formData);
       const text = document.createElement("p");
-      text.append("Bạn vừa nói: " + response?.data?.data)
+      text.append("Bạn vừa nói: " + response?.data?.data.query)
       document.body.appendChild(text);
     } catch(err) {
       console.error(err);
@@ -70,7 +70,7 @@ function App() {
         {messages.length > 0 && messages.map((message: any) => (
           <div key={message.id}>
             <p>id - {message.id}</p>
-            <p>message - {message.message}</p>
+            <p>message - {message.query}</p>
             <button onClick={() => onDeleteMessageHandler(message.id)}>Delete</button>
           </div>
         ))}
