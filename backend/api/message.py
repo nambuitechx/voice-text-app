@@ -4,7 +4,9 @@ import torch
 from tempfile import NamedTemporaryFile
 from typing import Annotated
 from fastapi import APIRouter, Query, HTTPException, Depends, UploadFile, File
+from fastapi.responses import StreamingResponse
 from transformers import pipeline
+from gtts import gTTS
 
 from configs import get_logger
 from entities.models import Message
@@ -12,6 +14,7 @@ from entities.schemas import (
     DefaultResponsePayload,
     PagingResponsePayload,
     GetMessagesQuery,
+    CreateMessagePayload,
 )
 from services import (
     get_all_messages,
@@ -50,9 +53,7 @@ async def get_all(filter_query: Annotated[GetMessagesQuery, Query()]):
 
 
 @router.post("/audio", response_model=DefaultResponsePayload, tags=["message"])
-async def upload(
-    file: Annotated[UploadFile, File(description="A voice audio file as UploadFile")],
-):
+async def upload(file: Annotated[UploadFile, File(description="A voice audio file as UploadFile")]):
     """
     Upload voice audio.
     Start a background service to handle uploading action.
@@ -79,6 +80,20 @@ async def upload(
     message = await create_message(message=message)
     
     return { "data": message.as_dict(), "message": "Upload voice audio successsfully" }
+
+
+@router.post("/text", tags=["message"])
+async def upload(payload: CreateMessagePayload):
+    """
+    Create a message.
+    """
+    tts =  gTTS(text=payload.query, lang="vi", slow=False)
+    
+    return StreamingResponse(
+        tts.stream(),
+        media_type='audio/mpeg',
+        headers={"Content-Disposition": f"attachment; filename=speech.mp3"}
+    )
 
 
 @router.delete("/message/{message_id}", response_model=DefaultResponsePayload, tags=["message"])
