@@ -4,10 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "vite --port 3000 --host 0.0.0.0",
     "dev": "vite --host 0.0.0.0 --port 3000",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview --port 3000 --host 0.0.0.0",
+    "build": "vite build",
+    "test": "jest --coverage --watchAll=false",
+    "test:dev": "jest --coverage --watchAll --noStackTrace --silent",
+    "test:report": "jest --ci --json --coverage --testLocationInResults --outputFile=./coverage/coverage_report.json --watchAll=false",
+    "lint": "eslint . --ext .ts,.tsx --quiet",
+    "format": "eslint . --ext .ts,.tsx --quiet --fix"
   },
   "dependencies": {
     "axios": "^1.7.9",

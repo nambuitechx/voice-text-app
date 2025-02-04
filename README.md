@@ -1,7 +1,8 @@
 # Voice Text Application
 
 ### Run with docker
-Comming soon..
+Not recommend to run on Docker because currently we need to download model to local to run the STT and TTS,
+which leads to the size of the image is too large.
 
 
 ### Run without docker
