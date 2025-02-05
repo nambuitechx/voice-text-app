@@ -3,12 +3,13 @@ import torch
 
 from tempfile import NamedTemporaryFile
 from typing import Annotated
-from fastapi import APIRouter, Query, HTTPException, Depends, UploadFile, File
+from fastapi import APIRouter, Query, HTTPException, Depends, UploadFile, File, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse
 from transformers import pipeline
 from gtts import gTTS
 
 from configs import get_logger
+from configs import WebSocketConnectionManager
 from entities.models import Message
 from entities.schemas import (
     DefaultResponsePayload,
@@ -31,6 +32,7 @@ from services import (
 
 router = APIRouter(prefix="/messages")
 logger = get_logger(__name__)
+ws_connection_manager = WebSocketConnectionManager()
 
 
 @router.get("/health", response_model=DefaultResponsePayload, tags=["message"])
@@ -110,3 +112,17 @@ async def delete_by_id(message_id: str):
     await delete_message(message=exist)
     
     return { "message": "Delete message successfully" }
+
+
+@router.websocket("/ws/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    logger.info(f"Client '{client_id}' is trying to connect to websocket...")
+    await ws_connection_manager.connect(websocket=websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await ws_connection_manager.send_personal_message(f"You wrote: {data}", websocket)
+            await ws_connection_manager.broadcast(f"Client #{client_id} says: {data}")
+    except WebSocketDisconnect:
+        ws_connection_manager.disconnect(websocket)
+        logger.info(f"Client '{client_id}' disconnected") 
