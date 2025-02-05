@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useReactMediaRecorder } from "react-media-recorder";
+import { io } from "socket.io-client";
 
 const BASE_URL = "http://localhost:8000/api/v1"
 
@@ -24,6 +25,22 @@ function App() {
       }
     }
     getAllMessages();
+  }, []);
+
+  useEffect(() => {
+    const client_id = "test_id"
+
+    const ws = io(`http://localhost:8000/ws/${client_id}`, {
+      transports: ['websocket'],
+    });
+
+    ws.on("connect", () => {
+      console.log("Connected");
+    });
+
+    return () => {
+      ws.disconnect();
+    }
   }, []);
 
   async function onRecordingStopHandler(_: string, blob: Blob) {

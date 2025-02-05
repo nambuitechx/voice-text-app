@@ -83,7 +83,7 @@ async def upload(file: Annotated[UploadFile, File(description="A voice audio fil
 
 
 @router.post("/text", tags=["message"])
-async def upload(payload: CreateMessagePayload):
+async def send_text(payload: CreateMessagePayload):
     """
     Create a message.
     """
