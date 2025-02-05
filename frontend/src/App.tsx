@@ -1,12 +1,11 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useReactMediaRecorder } from "react-media-recorder";
-import { io } from "socket.io-client";
 
 const BASE_URL = "http://localhost:8000/api/v1"
 
 function App() {
-  const { status, startRecording, stopRecording, mediaBlobUrl } = useReactMediaRecorder({
+  const { status, startRecording, stopRecording } = useReactMediaRecorder({
     video: false,
     audio: true,
     onStop: onRecordingStopHandler
@@ -30,18 +29,22 @@ function App() {
   useEffect(() => {
     const client_id = "test_id"
 
-    const ws = io(`http://localhost:8000/ws/${client_id}`, {
-      transports: ['websocket'],
-    });
+    const ws = new WebSocket(`ws://localhost:8000/api/v1/messages/ws/${client_id}`);
 
-    ws.on("connect", () => {
+    ws.onopen = () => {
+      // ws.send(`Hello from ${client_id}`);
       console.log("Connected");
-    });
+    }
+
+    ws.onmessage = (e) => {
+      const message = e.data;
+      console.log(message);
+    }
 
     return () => {
-      ws.disconnect();
+      ws.close();
     }
-  }, []);
+  }, [messages]);
 
   async function onRecordingStopHandler(_: string, blob: Blob) {
     // const url = URL.createObjectURL(blob);
