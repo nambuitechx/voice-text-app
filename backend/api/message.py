@@ -70,7 +70,7 @@ async def upload(file: Annotated[UploadFile, File(description="A voice audio fil
             temp_file.write(file_bytes)
         
         ## Use normal whisper
-        # result = model.transcribe(temp.name, fp16=False)
+        # result = model.transcribe(temp.name, language="vi", fp16=False)
         # output = result.get("text", "")
         
         ## Use PhoWhisper
